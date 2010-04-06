@@ -1,0 +1,1 @@
+cp -R RTP.bundle ~/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/
