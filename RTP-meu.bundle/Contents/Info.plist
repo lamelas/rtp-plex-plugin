@@ -8,8 +8,6 @@
     <string>com.plexapp.plugins.rtp</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
-    <key>PlexFrameworkVersion</key>
-    <string>1</string>
     <key>CFBundlePackageType</key>
     <string>AAPL</string>
     <key>CFBundleSignature</key>
@@ -20,5 +18,7 @@
     <string>AlwaysOn</string>
     <key>PlexPluginDebug</key>
     <string>1</string>
+	<key>PlexFrameworkVersion</key>
+	<string>1</string>
   </dict>
 </plist>
