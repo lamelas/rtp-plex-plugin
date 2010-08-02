@@ -3,6 +3,8 @@
 from PMS import *
 from PMS.Objects import *
 from PMS.Shortcuts import *
+from BeautifulSoup import BeautifulSoup
+import re, string, datetime
 
 ####################################################################################################
 
@@ -10,118 +12,235 @@ VIDEO_PREFIX = "/video/rtp"
 
 NAME = L('Title')
 
-# make sure to replace artwork with what you want
-# these filenames reference the example files in
-# the Contents/Resources/ folder in the bundle
 ART           = 'art-default.png'
 ICON          = 'icon-default.png'
 
-## codigo meu
-MENU_URL		= "http://tv.rtp.pt/multimedia/php/ajax_links.php?menu=video&pesquisa=a_z"
-divs = None
+EPISODES_URL      = "http://ww1.rtp.pt/multimedia/progVideo.php?tvprog="
 
 ####################################################################################################
 
 def Start():
-    HTTP.Request(MENU_URL)
-    ## make this plugin show up in the 'Video' section
-    ## in Plex. The L() function pulls the string out of the strings
-    ## file in the Contents/Strings/ folder in the bundle
-    ## see also:
-    ##  http://dev.plexapp.com/docs/mod_Plugin.html
-    ##  http://dev.plexapp.com/docs/Bundle.html#the-strings-directory
     Plugin.AddPrefixHandler(VIDEO_PREFIX, VideoMainMenu, L('VideoTitle'), ICON, ART)
 
     Plugin.AddViewGroup("InfoList", viewMode="InfoList", mediaType="items")
     Plugin.AddViewGroup("List", viewMode="List", mediaType="items")
 
-    ## set some defaults so that you don't have to
-    ## pass these parameters to these object types
-    ## every single time
-    ## see also:
-    ##  http://dev.plexapp.com/docs/Objects.html
     MediaContainer.art = R(ART)
     MediaContainer.title1 = NAME
     DirectoryItem.thumb = R(ICON)
 
-  
-
-
-#### the rest of these are user created functions and
-#### are not reserved by the plugin framework.
-#### see: http://dev.plexapp.com/docs/Functions.html for
-#### a list of reserved functions above
-
-
-
-#
-# Example main menu referenced in the Start() method
-# for the 'Video' prefix handler
-#
-
 def VideoMainMenu():
     Log('(RTP) Main Menu')
-    # Container acting sort of like a folder on
-    # a file system containing other things like
-    # "sub-folders", videos, music, etc
-    # see:
-    #  http://dev.plexapp.com/docs/Objects.html#MediaContainer
     dir = MediaContainer(viewGroup="InfoList")
-
-    # see:
-    #  http://dev.plexapp.com/docs/Objects.html#DirectoryItem
-    #  http://dev.plexapp.com/docs/Objects.html#function-objects
-    dir.Append(
-        Function(
-            DirectoryItem(
-                CallbackExample,
-                "directory item title",
-                subtitle="subtitle",
-                summary="clicking on me will call CallbackExample",
-                thumb=R(ICON),
-                art=R(ART)
-            )
-        )
-    )
-  
-    # Part of the "search" example 
-    # see also:
-    #   http://dev.plexapp.com/docs/Objects.html#InputDirectoryItem
-    dir.Append(
-        Function(
-            InputDirectoryItem(
-                SearchResults,
-                "Search title",
-                "Search subtitle",
-                summary="This lets you search stuff",
-                thumb=R(ICON),
-                art=R(ART)
-            )
-        )
-    )
-
-
-    # ... and then return the container
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="2010"), progid="23328"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="27 Maravilhas Portuguesas ..."), progid="25282"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="30 minutos"), progid="23840"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="4 x Ciência"), progid="17203"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="5 Para a Meia-Noite"), progid="26508"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="50 Anos"), progid="22016"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="55.º Festival da Canção 20..."), progid="26132"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="7 Palmos de Testa"), progid="24550"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="70x7"), progid="1250"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A Cor do Dinheiro"), progid="24382"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A de Autor"), progid="26365"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A Economia do Mês"), progid="23087"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A Fé dos Homens"), progid="1115"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A Hora de Baco"), progid="17208"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A Lista de Chorin"), progid="23768"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A luz dos meus dias"), progid="23608"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A voz da Saudade"), progid="23742"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="A voz do Cidadão"), progid="21175"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Agora é que é!"), progid="26444"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Além de Nós"), progid="25830"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Alma e a Gente"), progid="23320"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Antena Aberta"), progid="18444"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Antes Pelo Contrário"), progid="25069"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Arquitectarte"), progid="24383"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Arte & Emoção"), progid="25103"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Artes de Rua"), progid="25678"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="As 7 Maravilhas Naturais d..."), progid="26074"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="As Divinas Comédias"), progid="25161"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="As Escolhas de Marcelo"), progid="18524"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="As Ilhas Desconhecidas"), progid="25082"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Atlântida"), progid="16251"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Audax - Negócios à Prova"), progid="22791"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Bairro Alto"), progid="24878"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Balanço & Contas"), progid="23484"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Biosfera"), progid="24778"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Bom dia Portugal"), progid="12711"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Bom Português"), progid="22815"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Bravo"), progid="24456"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Cá Nada"), progid="25750"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Câmara Clara"), progid="24806"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Caminho faz-se Caminhando"), progid="23123"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Caminhos"), progid="1248"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Campeões"), progid="24012"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Casa das Artes"), progid="25719"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Cine Parque"), progid="16645"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Cinemax"), progid="26107"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Clube de Imprensa"), progid="23329"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Clube de Jornalistas"), progid="23294"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Concerto: A Voz"), progid="25080"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Consigo"), progid="23317"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Conta-me Como Foi"), progid="20133"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Contra Informação"), progid="1200"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Conversas de Escritores"), progid="25324"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Conversas de Mário Soares"), progid="23973"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Corredor Do Poder"), progid="23479"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Corrida dos Triunfadores"), progid="24322"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Corrida RTP"), progid="24143"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Cuidado com a Língua"), progid="21216"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Dança Comigo no Gelo"), progid="25665"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Debate à Quarta"), progid="24387"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Depois do Adeus"), progid="23114"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Desafio Saudável"), progid="24266"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Desafio Verde"), progid="23582"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Diário Câmara Clara"), progid="26022"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Diário XS"), progid="26161"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Diga lá Excelência"), progid="23327"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Directo ao Assunto"), progid="25197"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Domingo Desportivo"), progid="25507"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Dossier de Imprensa"), progid="20061"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Em Entrevista"), progid="25727"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Em Nome da Terra"), progid="26478"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Em Reportagem"), progid="20716"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Em Reportagem (Madeira)"), progid="25728"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Especial Informação"), progid="1871"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Esta é a nossa rua"), progid="25975"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Estação das Artes"), progid="24937"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Estoril Open"), progid="25141"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Eurodeputados"), progid="15373"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Europeias 2009"), progid="25219"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Eurotwitt"), progid="26163"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Fala com Elas"), progid="25194"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="falaescreveacertaganha"), progid="25604"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Falamos Português"), progid="21516"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Família, Família"), progid="25664"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Febre da Dança"), progid="24944"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Festival da Canção"), progid="24683"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Festival RTP da Canção 201..."), progid="26129"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Festival RTP-A melhor canç..."), progid="24864"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Fotograma"), progid="22946"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Frente a Frente:Francisco ..."), progid="25568"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Geração DVD"), progid="24411"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Gostos e Sabores"), progid="17204"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Grande Entrevista"), progid="1436"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Guarda Livros"), progid="24385"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Herman 2010"), progid="25832"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Hollywood.pt"), progid="25056"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Hora de fecho"), progid="24974"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="IGOV"), progid="25341"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Iniciativa"), progid="24786"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Interesse Público"), progid="25699"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Irreverência"), progid="23099"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Janela Indiscreta"), progid="26127"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Jogos Paralimpicos"), progid="24258"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Jornal 2"), progid="16478"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Jornal da Tarde"), progid="1098"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Jornal da Tarde Açores"), progid="1501"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Km Zero"), progid="24029"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Lá e Cá"), progid="26306"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Lado a Lado"), progid="13922"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Lado B"), progid="26273"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Liga dos Últimos"), progid="17658"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Liga Intercalar"), progid="24430"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Ligados a Portugal"), progid="26460"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Linha da Frente"), progid="25508"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine África do Sul Con..."), progid="15560"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Argentina Contact..."), progid="21236"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Austrália Contact..."), progid="21987"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Brasil Contacto"), progid="16193"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Canadá Contacto"), progid="16195"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine EUA Contacto - Ca..."), progid="19756"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine EUA Contacto - N...."), progid="17754"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine EUA Contacto - Ne..."), progid="15106"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Europa Contacto"), progid="16194"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine França Contacto"), progid="21229"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Goa Contacto"), progid="20155"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Macau Contacto"), progid="17344"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Timor Leste Conta..."), progid="18147"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Magazine Venezuela Contact..."), progid="17736"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Meia-Maratona"), progid="24981"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Meteorologia"), progid="14687"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Mil Gigas"), progid="24757"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Minuto Verde"), progid="21614"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Mude o Seu Mundo"), progid="25823"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Mundo Automóvel"), progid="25079"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Nem Mais Nem Menos"), progid="25751"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Nha Terra"), progid="20608"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="No Ar"), progid="26178"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="No Fio das Palavras"), progid="24181"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Nobre Povo"), progid="25323"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Nós"), progid="25898"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Notas Soltas"), progid="19114"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Notícias de Portugal"), progid="1290"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Notícias RTP Madeira (2)"), progid="23397"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="O Cubo"), progid="26112"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="O QUE SE PASSOU FOI ISTO"), progid="25879"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="O Sentido do Gosto"), progid="24448"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="O Último Passageiro"), progid="25651"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Olha quem dança"), progid="24357"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Olhar o Mundo"), progid="19920"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Os Contemporâneos"), progid="23711"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Parlamento"), progid="1206"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Parlamento (Madeira)"), progid="25707"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Passeio Público"), progid="16646"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Pátio dos Estudantes"), progid="25046"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Património Mundial Portugu..."), progid="26307"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Pontapé de Saída"), progid="21238"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Pontos de Vista"), progid="16063"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Portugal em Directo"), progid="19455"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Portugal sem Fronteiras"), progid="11286"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Programa das Festas"), progid="25718"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Projecto Moda"), progid="26528"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Prolongamento"), progid="21188"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Prós e Contras"), progid="26006"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Quarto Crescente"), progid="24524"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Radar de Negócios"), progid="15928"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Reclame"), progid="23700"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Regresso ao Campo"), progid="18374"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Repórter África"), progid="10184"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Saber Saúde"), progid="22070"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Salvador"), progid="25663"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Serviço de Saúde"), progid="24440"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Só Visto"), progid="17589"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Sociedade Civil"), progid="23283"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Super Especial"), progid="20420"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="T2 para 3"), progid="24423"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Telejornal"), progid="1103"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Telejornal Açores"), progid="1505"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Telejornal Madeira"), progid="15790"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Telerural"), progid="23875"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Top Crioulo"), progid="21089"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Trio de Ataque"), progid="17798"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Um Mundo Catita"), progid="24251"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Uma Questão de Fé"), progid="18848"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Vamos Ouvir"), progid="25610"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Vice Versa"), progid="24384"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Vidas Contadas"), progid="26179"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Volta a Portugal 2008"), progid="24015"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Voluntário"), progid="24130"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Zona Mista"), progid="24386"))
+    dir.Append(Function(DirectoryItem(ListEpisodes, title="Zoom"), progid="17212"))
     return dir
 
-def CallbackExample(sender):
+def ListEpisodes(sender, progid):
+    Log("(RTP) Getting episodes for show (tvprog = "+progid+")")
+    dir = MediaContainer(viewGroup="InfoList", title2=sender.itemTitle)
+    data = HTTP.Request(EPISODES_URL+progid)
+    sopa = BeautifulSoup(data)
+    divs = sopa.findAll("div", {'class': 'dadosVideo'})
+    for episodio in divs:
+        dir.Append(Function(WebVideoItem(GetEpisodeData, title=episodio.contents[1].string,subtitle=episodio.contents[5].string), tvprog=progid, idpod=episodio.contents[3].contents[1].attrs[0][1].split("idpod=")[1]))
+    return dir
 
-    ## you might want to try making me return a MediaContainer
-    ## containing a list of DirectoryItems to see what happens =)
-
-    return MessageContainer(
-        "Not implemented",
-        "In real life, you'll make more than one callback,\nand you'll do something useful.\nsender.itemTitle=%s" % sender.itemTitle
-    )
-
-# Part of the "search" example 
-# query will contain the string that the user entered
-# see also:
-#   http://dev.plexapp.com/docs/Objects.html#InputDirectoryItem
-def SearchResults(sender,query=None):
-    return MessageContainer(
-        "Not implemented",
-        "In real life, you would probably perform some search using python\nand then build a MediaContainer with items\nfor the results"
-    )
-    
-  
+def GetEpisodeData(sender, tvprog, idpod):
+    Log("(RTP) Playing... (tvprog = "+ tvprog +", idpod = "+idpod+")")
+    data = HTTP.Request(EPISODES_URL+tvprog+"&idpod="+idpod)
+    sopa = BeautifulSoup(data)
+    divs = sopa.findAll("div", {'class': 'videoPlayer'})
+    base_video_url = divs[0].contents[3].string.split("streamer\", \"")[1].split("\"")[0]
+    clip = divs[0].contents[3].string.split("file\",\"")[1].split(".")[0]
+    Log("(RTP) Streamer " + divs[0].contents[3].string.split("streamer\", \"")[1].split("\"")[0])
+    Log("(RTP) Clip " + divs[0].contents[3].string.split("file\",\"")[1].split(".")[0])
+    return Redirect(WebVideoItem("http://www.plexapp.com/player/player.php?url="+base_video_url+"&clip="+clip))
