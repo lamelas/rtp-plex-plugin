@@ -1,0 +1,1 @@
+A simple plugin for [Plex Media Center](http://plexapp.com "Plex Application") to allow access to the videos available at the [RTP website]("http://ww1.rtp.pt/multimedia/index.php" "RTP website")
